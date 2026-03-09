@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card p-4 col-md-4 mx-auto">
+
+<h2>Login</h2>
+
+<form method="POST">
+
+<label>Email</label>
+<input class="form-control" type="email" name="email">
+
+<br>
+
+<label>Password</label>
+<input class="form-control" type="password" name="password">
+
+<br>
+
+<button class="btn btn-success">Login</button>
+
+</form>
+
+<a href="/register">Register</a>
+
+</div>
+
+{% endblock %}

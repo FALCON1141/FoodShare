@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Email Verification</h2>
+
+<p>Your verification code: <b>{{ code }}</b></p>
+
+<form method="POST" action="/verify">
+
+<label>Enter Verification Code</label>
+
+<input class="form-control" type="text" name="code">
+
+<br>
+
+<button class="btn btn-success">Verify</button>
+
+</form>
+
+{% endblock %}

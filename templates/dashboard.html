@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- Heading -->
+    <div class="text-center mb-4">
+        <h1 style="color:#2e7d32;">Welcome to FoodShare</h1>
+        <p style="font-size:18px;">Thank you for your kindness ❤️</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row text-center">
+
+        <div class="col-md-4">
+            <div class="card shadow p-3 mb-4" style="border-left:6px solid #4CAF50;">
+                <h4>Total Donations</h4>
+                <h2>{{ total }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow p-3 mb-4" style="border-left:6px solid #ff9800;">
+                <h4>Pending</h4>
+                <h2>{{ pending }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow p-3 mb-4" style="border-left:6px solid #2196f3;">
+                <h4>Completed</h4>
+                <h2>{{ completed }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
