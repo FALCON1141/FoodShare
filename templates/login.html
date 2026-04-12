@@ -2,27 +2,35 @@
 
 {% block content %}
 
-<div class="card p-4 col-md-4 mx-auto">
+<div class="card p-4 col-md-4 mx-auto shadow">
 
-<h2>Login</h2>
+<h2 class="text-center mb-3" style="color:#2e7d32;">Join us to Donate</h2>
+
+<p class="text-center text-muted">
+    "Together, we can make a difference"
+</p>
 
 <form method="POST">
 
 <label>Email</label>
-<input class="form-control" type="email" name="email">
+<input class="form-control" type="email" name="email" required>
 
 <br>
 
 <label>Password</label>
-<input class="form-control" type="password" name="password">
+<input class="form-control" type="password" name="password" required>
 
 <br>
 
-<button class="btn btn-success">Login</button>
+<button class="btn btn-success w-100">Login</button>
 
 </form>
 
-<a href="/register">Register</a>
+<br>
+
+<div class="text-center">
+<a href="/register">Don't have an account? Register</a>
+</div>
 
 </div>
 
