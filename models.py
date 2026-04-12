@@ -2,7 +2,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -27,7 +26,7 @@ class ContactMessage(db.Model):
     name = db.Column(db.String(100))
     email = db.Column(db.String(100))
     message = db.Column(db.Text)
-    reply = db.Column(db.Text)
+    reply = db.Column(db.Text) 
 
 
 class Donation(db.Model):
