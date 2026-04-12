@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">📜 Activity History</h2>
+
+<div class="card p-3 shadow">
+
+<table class="table table-hover">
+
+<tr>
+<th>Food</th>
+<th>Location</th>
+<th>Status</th>
+<th>Expiry</th>
+</tr>
+
+{% for d in history %}
+<tr>
+
+<td>{{ d.food_type }}</td>
+<td>{{ d.pickup_location }}</td>
+
+<td>
+    {% if d.status == "Distributed" %}
+        <span class="badge bg-success">Completed</span>
+    {% elif d.status == "Collected" %}
+        <span class="badge bg-warning text-dark">Collected</span>
+    {% elif d.status == "Accepted" %}
+        <span class="badge bg-info">Accepted</span>
+    {% else %}
+        <span class="badge bg-secondary">{{ d.status }}</span>
+    {% endif %}
+</td>
+
+<td>{{ d.expiry_time }}</td>
+
+</tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+{% endblock %}
