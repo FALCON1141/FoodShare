@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block content %}
 
 <div class="card p-4">
@@ -9,17 +8,17 @@
 <form method="POST">
 
 <label>Name</label>
-<input class="form-control" type="text" name="name" value="{{ user.name }}">
+<input class="form-control" type="text" name="name" value="{{ user.name }}" required>
 
 <br>
 
 <label>Email</label>
-<input class="form-control" type="email" name="email" value="{{ user.email }}">
+<input class="form-control" type="email" name="email" value="{{ user.email }}" required>
 
 <br>
 
 <label>Address</label>
-<input class="form-control" type="text" name="address" value="{{ user.address }}">
+<input class="form-control" type="text" name="address" value="{{ user.address }}" required>
 
 <br>
 
