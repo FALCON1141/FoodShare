@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Donation History</h2>
+
+<table class="table">
+<tr>
+    <th>Food</th>
+    <th>Qty</th>
+    <th>Location</th>
+    <th>Expiry</th>
+    <th>Status</th>
+    <th>Action</th>
+</tr>
+
+{% for d in donations %}
+<tr>
+    <td>{{ d.food_type }}</td>
+    <td>{{ d.quantity }}</td>
+    <td>{{ d.pickup_location }}</td>
+    <td>{{ d.expiry_time }}</td>
+    <td>{{ d.status }}</td>
+
+    <td>
+        {% if d.status in ["Accepted","Assigned"] %}
+            🔒 Locked
+        {% else %}
+            <a href="{{ url_for('edit_donation', id=d.id) }}">Edit</a> |
+            <a href="{{ url_for('delete_donation', id=d.id) }}">Delete</a>
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+
+</table>
+
+{% endblock %}

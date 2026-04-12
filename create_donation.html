@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card p-4">
+    <h2>Create Donation</h2>
+
+    <form method="POST">
+
+        <label>Food Type</label>
+        <input type="text" name="food_type" required class="form-control mb-2">
+
+        <label>Quantity</label>
+        <input type="number" name="quantity" required class="form-control mb-2">
+
+        <label>Pickup Location</label>
+        <input type="text" name="pickup_location" required class="form-control mb-2">
+
+        <label>Expiry Date</label>
+        <input type="date" name="expiry_time" required class="form-control mb-2">
+
+        <button type="submit" class="btn btn-success mt-2">
+            Submit Donation
+        </button>
+
+    </form>
+</div>
+
+{% endblock %}

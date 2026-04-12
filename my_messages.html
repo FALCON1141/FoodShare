@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>📩 My Messages</h2>
+
+<div class="card p-3">
+
+    {% for m in messages %}
+    <div class="border p-3 mb-3 rounded">
+
+        <p><strong>You:</strong> {{ m.message }}</p>
+
+        {% if m.reply %}
+            <div class="bg-light p-2 rounded mt-2">
+                <strong>Admin Reply:</strong> {{ m.reply }}
+            </div>
+        {% else %}
+            <p class="text-muted">No reply yet</p>
+        {% endif %}
+
+    </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

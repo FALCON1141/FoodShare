@@ -1,143 +1,139 @@
+print("🔥 app.py is running")
+
 from flask import Flask, render_template, request, redirect, url_for, session
-from models import db, User, Donation
-import random
-from datetime import timedelta
+from datetime import timedelta, datetime
+
+from models import db, User, Donation, Review, ContactMessage
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+import os
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(os.getcwd(), 'database.db')
 app.config['SECRET_KEY'] = 'secret123'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+# Create database tables
 with app.app_context():
     db.create_all()
 
 
-@app.route('/register', methods=['GET','POST'])
+# SAFE DATE
+def parse_date_safe(date_str):
+    try:
+        return datetime.strptime(date_str, '%Y-%m-%d').date()
+    except:
+        return None
+
+
+# HOME
+@app.route('/')
+def home():
+    return render_template(
+        "home.html",
+        total=Donation.query.count(),
+        distributed=Donation.query.filter_by(status="Distributed").count(),
+        volunteers=User.query.filter_by(role="volunteer").count(),
+        reviews=Review.query.all()
+    )
+
+
+# AUTH
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-
-    if 'user_id' in session:
-        return redirect(url_for('dashboard'))
-
     if request.method == 'POST':
-
-        name = request.form['name']
-        email = request.form['email']
-        password = request.form['password']
-        address = request.form['address']
-
-        code = str(random.randint(100000,999999))
-
         user = User(
-            name=name,
-            email=email,
-            password=password,
-            address=address,
-            role="donor",
-            verification_code=code
+            name=request.form['name'],
+            email=request.form['email'],
+            password=request.form['password'],
+            address=request.form['address'],
+            role=request.form['role']
         )
 
         db.session.add(user)
         db.session.commit()
 
-        return render_template("verify.html", code=code)
+        return redirect(url_for('login'))
 
     return render_template("register.html")
 
 
-@app.route('/verify', methods=['POST'])
-def verify():
-
-    code = request.form['code']
-
-    user = User.query.filter_by(verification_code=code).first()
-
-    if user:
-        user.verified = True
-        db.session.commit()
-        return redirect(url_for('login'))
-
-    return "Invalid verification code"
-
-
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-
-    if 'user_id' in session:
-        return redirect(url_for('dashboard'))
-
     if request.method == 'POST':
 
-        email = request.form['email']
-        password = request.form['password']
+        user = User.query.filter_by(
+            email=request.form['email'],
+            password=request.form['password']
+        ).first()
 
-        user = User.query.filter_by(email=email, password=password).first()
+        if user:
 
-        if user and user.verified:
+            if not user.active:
+                return render_template("login.html", message="Blocked")
 
-            session.permanent = True
             session['user_id'] = user.id
+            session['role'] = user.role
 
-            return redirect(url_for('dashboard'))
+            if user.role == "admin":
+                return redirect(url_for('admin_dashboard'))
 
-        if user and not user.verified:
-            return "Please verify your email first."
+            elif user.role == "volunteer":
+                return redirect(url_for('volunteer_dashboard'))
 
-        return "Invalid email or password"
+            else:
+                return redirect(url_for('dashboard'))
+
+        return render_template("login.html", message="Invalid")
 
     return render_template("login.html")
 
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+
+# DONOR DASHBOARD
 @app.route('/dashboard')
 def dashboard():
 
-    if 'user_id' not in session:
+    if session.get('role') != 'donor':
         return redirect(url_for('login'))
-
-    user_id = session['user_id']
-
-    total = Donation.query.filter_by(donor_id=user_id).count()
-
-    pending = Donation.query.filter_by(
-        donor_id=user_id,
-        status="Pending"
-    ).count()
-
-    completed = Donation.query.filter_by(
-        donor_id=user_id,
-        status="Completed"
-    ).count()
 
     return render_template(
         "dashboard.html",
-        total=total,
-        pending=pending,
-        completed=completed
+        total=Donation.query.filter_by(donor_id=session['user_id']).count(),
+        pending=Donation.query.filter_by(
+            donor_id=session['user_id'],
+            status="Pending"
+        ).count(),
+        completed=Donation.query.filter_by(
+            donor_id=session['user_id'],
+            status="Distributed"
+        ).count()
     )
 
 
-@app.route('/create_donation', methods=['GET','POST'])
+# CREATE DONATION
+@app.route('/create_donation', methods=['GET', 'POST'])
 def create_donation():
 
-    if 'user_id' not in session:
+    if session.get('role') != 'donor':
         return redirect(url_for('login'))
 
     if request.method == 'POST':
 
-        food_type = request.form['food_type']
-        quantity = request.form['quantity']
-        pickup_location = request.form['pickup_location']
-        expiry_time = request.form['expiry_time']
-
         donation = Donation(
-            food_type=food_type,
-            quantity=quantity,
-            pickup_location=pickup_location,
-            expiry_time=expiry_time,
-            donor_id=session['user_id'],
-            status="Pending"
+            food_type=request.form['food_type'],
+            quantity=int(request.form['quantity']),
+            pickup_location=request.form['pickup_location'],
+            expiry_time=parse_date_safe(request.form['expiry_time']),
+            donor_id=session['user_id']
         )
 
         db.session.add(donation)
@@ -148,10 +144,11 @@ def create_donation():
     return render_template("create_donation.html")
 
 
+# DONATION HISTORY
 @app.route('/donation_history')
 def donation_history():
 
-    if 'user_id' not in session:
+    if session.get('role') != 'donor':
         return redirect(url_for('login'))
 
     donations = Donation.query.filter_by(
@@ -161,87 +158,114 @@ def donation_history():
     return render_template("donation_history.html", donations=donations)
 
 
-@app.route('/edit_donation/<int:id>', methods=['GET','POST'])
-def edit_donation(id):
+# VOLUNTEER DASHBOARD
+@app.route('/volunteer')
+def volunteer_dashboard():
 
-    if 'user_id' not in session:
+    if session.get('role') != 'volunteer':
         return redirect(url_for('login'))
 
-    donation = Donation.query.get(id)
+    assigned = Donation.query.filter_by(
+        volunteer_id=session['user_id']
+    ).all()
 
-    if donation.donor_id != session['user_id']:
+    return render_template(
+        "volunteer_dashboard.html",
+        available=Donation.query.filter_by(volunteer_id=None).all(),
+        assigned=assigned
+    )
+
+
+# ACCEPT DONATION
+@app.route('/accept/<int:id>')
+def accept(id):
+
+    d = Donation.query.get(id)
+
+    if d.volunteer_id != session.get('user_id'):
         return "Unauthorized"
 
-    if request.method == 'POST':
-
-        donation.food_type = request.form['food_type']
-        donation.quantity = request.form['quantity']
-        donation.pickup_location = request.form['pickup_location']
-        donation.expiry_time = request.form['expiry_time']
-
-        db.session.commit()
-
-        return redirect(url_for('donation_history'))
-
-    return render_template("edit_donation.html", donation=donation)
-
-
-@app.route('/delete_donation/<int:id>')
-def delete_donation(id):
-
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    donation = Donation.query.get(id)
-
-    if donation.donor_id != session['user_id']:
-        return "Unauthorized"
-
-    db.session.delete(donation)
+    d.status = "Accepted"
     db.session.commit()
 
-    return redirect(url_for('donation_history'))
+    return redirect(url_for('volunteer_dashboard'))
 
 
-@app.route('/profile')
-def profile():
+# ADMIN DASHBOARD
+@app.route('/admin')
+def admin_dashboard():
 
-    if 'user_id' not in session:
+    if session.get('role') != 'admin':
         return redirect(url_for('login'))
 
-    user = User.query.get(session['user_id'])
+    return render_template(
+        "admin_dashboard.html",
+        donations=Donation.query.all(),
+        users=User.query.all(),
+        volunteers=User.query.filter_by(role="volunteer").all()
+    )
 
-    return render_template("profile.html", user=user)
 
+# ASSIGN VOLUNTEER
+@app.route('/assign/<int:donation_id>/<int:volunteer_id>')
+def assign(donation_id, volunteer_id):
 
-@app.route('/edit_profile', methods=['GET','POST'])
-def edit_profile():
-
-    if 'user_id' not in session:
+    if session.get('role') != 'admin':
         return redirect(url_for('login'))
 
-    user = User.query.get(session['user_id'])
+    d = Donation.query.get(donation_id)
+
+    if d.status in ["Accepted", "Collected", "Distributed"]:
+        return "Cannot reassign."
+
+    d.volunteer_id = volunteer_id
+    d.status = "Assigned"
+
+    db.session.commit()
+
+    return redirect(url_for('admin_dashboard'))
+
+
+# CONTACT
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+
+    message_sent = False
 
     if request.method == 'POST':
 
-        user.name = request.form['name']
-        user.email = request.form['email']
-        user.address = request.form['address']
+        msg = ContactMessage(
+            name=request.form['name'],
+            email=request.form['email'],
+            message=request.form['message']
+        )
 
+        db.session.add(msg)
         db.session.commit()
 
-        return redirect(url_for('profile'))
+        message_sent = True
 
-    return render_template("edit_profile.html", user=user)
+    return render_template("contact.html", message_sent=message_sent)
 
 
-@app.route('/logout')
-def logout():
+# ADD REVIEW
+@app.route('/add_review', methods=['POST'])
+def add_review():
 
-    session.clear()
+    review = Review(
+        user_name=request.form['name'],
+        message=request.form['message']
+    )
 
-    return redirect(url_for('login'))
+    db.session.add(review)
+    db.session.commit()
+
+    return redirect(url_for('home'))
 
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        print("Database and tables created successfully!")
+
     app.run(debug=True)

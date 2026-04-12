@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Admin Dashboard</h2>
+
+<!-- STATS -->
+<div class="row mb-4 text-center">
+
+    <div class="col-md-3">
+        <div class="card p-3 stat-card stat-1">
+            <h6>Total Donations</h6>
+            <h2>{{ donations|length }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3 stat-card stat-2">
+            <h6>Pending</h6>
+            <h2>{{ donations | selectattr('status','equalto','Pending') | list | length }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3 stat-card stat-3">
+            <h6>Assigned</h6>
+            <h2>{{ donations | selectattr('status','equalto','Assigned') | list | length }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3 stat-card stat-4">
+            <h6>Completed</h6>
+            <h2>{{ donations | selectattr('status','equalto','Distributed') | list | length }}</h2>
+        </div>
+    </div>
+
+</div>
+
+<!-- USERS -->
+<div class="card p-3 mb-4">
+    <h4>Users</h4>
+    <table class="table">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+
+        {% for u in users %}
+        <tr>
+            <td>{{ u.name }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role }}</td>
+
+            <td>
+                {% if u.active %}
+                    Active
+                {% else %}
+                    Blocked
+                {% endif %}
+            </td>
+
+            <td>
+                <a href="/toggle_user/{{ u.id }}" class="btn btn-warning btn-sm">Toggle</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- DONATIONS -->
+<div class="card p-3">
+    <h4>Donations</h4>
+
+    <table class="table table-bordered">
+        <tr>
+            <th>Food</th>
+            <th>Donor</th>
+            <th>Status</th>
+            <th>Volunteer</th>
+            <th>Assign</th>
+        </tr>
+
+        {% for d in donations %}
+        <tr>
+            <td>{{ d.food_type }}</td>
+
+            <td>{{ d.donor.name }}</td>
+
+            <td>{{ d.status }}</td>
+
+            <td>
+                {% if d.volunteer %}
+                    {{ d.volunteer.name }}
+                {% else %}
+                    Not Assigned
+                {% endif %}
+            </td>
+
+            <td>
+                {% if d.status in ["Accepted", "Collected", "Distributed"] %}
+                <span class="text-success">🔒 Locked</span>
+                {% else %}
+                    {% for v in volunteers %}
+                        <a href="/assign/{{ d.id }}/{{ v.id }}" class="btn btn-sm btn-primary mb-1">
+                            {{ v.name }}
+                        </a>
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}
