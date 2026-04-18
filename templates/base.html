@@ -160,7 +160,8 @@
     }
 
     .bg-primary {
-        background: #f9f9fa !important;
+        background: #1f2a44 !important; /* navy */
+        color: #ffffff !important;
     }
 
     .bg-warning {
@@ -211,6 +212,62 @@
     .how-card:nth-child(3) {
         background: #f3f6f4;
     }
+    .premium-card {
+     border-radius: 18px;
+     background: #ffffff;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+     transition: 0.3s ease;
+    }
+
+    .premium-card:hover {
+       transform: translateY(-6px);
+       box-shadow: 0 14px 40px rgba(0,0,0,0.12);
+    }
+
+
+    .icon-box {
+       width: 60px;
+       height: 60px;
+       margin: auto;
+       border-radius: 50%;
+       background: #eef2f7;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       font-size: 26px;
+       color: #0d51f0;
+    }
+
+    .icon-box.pending {
+       background: #fff4e5;
+       color: #ff9800;
+    }
+
+    .icon-box.success {
+      background: #e8f5e9;
+      color: #0f9e16;
+    }
+
+
+    .premium-highlight {
+      border-radius: 20px;
+      background: linear-gradient(135deg, #0e934a, #6b8e23);
+      color: white;
+ 
+    }
+
+    .premium-highlight p {
+      color: #e0e0e0;
+    }
+
+
+    h1 {
+      font-size: 42px;
+    }
+
+    h2 {
+      letter-spacing: -0.5px;
+    }
 
 
 </style>
@@ -245,6 +302,7 @@
                     <a href="/volunteer"><i class="bi bi-list"></i> Dashboard</a>
                     <a href="/volunteer_history"><i class="bi bi-clock"></i> Activity</a>
                     <a href="/contact"><i class="bi bi-telephone"></i> Contact</a>
+                    <a href="/my_messages"><i class="bi bi-chat-dots"></i> My Messages</a>
                 {% endif %}
 
                 {% if session['role'] == 'admin' %}
@@ -276,7 +334,7 @@
 
             {% if session.get('user_id') %}
             <div class="topbar">
-                <h5>Welcome, {{ session['role'] }}</h5>
+                <h5>👋Welcome, {{ session['role'] }}</h5>
             </div>
             {% endif %}
 
