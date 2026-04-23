@@ -77,41 +77,57 @@ FoodShare+ solves this problem by providing a centralized system for food donati
  -System updates status at each step
 
 This ensures transparency and proper tracking of every donation.
+🔄 System Workflow
+
+    Donor creates a donation
+
+    Admin assigns a volunteer
+
+    Volunteer collects and delivers food
+
+    System updates its status at each step
+
+This ensures transparency and proper tracking of every donation.
 🧱 Technology Stack
-
-Backend	- Flask (Python)
-Database - SQLite + SQLAlchemy
-Frontend	- HTML, CSS, Bootstrap
-Templating	- Jinja2
-
+Layer	Technology
+Backend	Flask (Python)
+Database	SQLite + SQLAlchemy
+Frontend	HTML, CSS, Bootstrap
+Templating	Jinja2
 🗄️ Database Structure
 
 Main entities:
 
-  1. Users → stores roles and authentication data
+    Users → stores roles and authentication data
 
-  2. Donations → stores food details and status
+    Donations → stores food details and status
 
-  3. Assignments → links volunteers to donations
+    Assignments → links volunteers to donations
+
 
      🚀 Setup Instructions
 1. Clone the repository
-   git clone https://github.com/your-username/foodshare-plus.git
-   cd foodshare-plus
-     
+
+git clone https://github.com/your-username/foodshare-plus.git
+cd foodshare-plus
+
 2. Create virtual environment
-   python -m venv venv
-   source venv/bin/activate   # (Linux/Mac)
-   venv\Scripts\activate      # (Windows)
+
+python -m venv venv
+source venv/bin/activate   # (Linux/Mac)
+venv\Scripts\activate      # (Windows)
 
 3. Install dependencies
+
 pip install flask sqlalchemy
 
 4. Run the application
-   python app.py
+
+python app.py
 
 5. Open in browser
-http://127.0.0.1:5000/ or http://127.0.0.1:5000/Home
+
+http://127.0.0.1:5000/
 
 📸 Screenshots
 
